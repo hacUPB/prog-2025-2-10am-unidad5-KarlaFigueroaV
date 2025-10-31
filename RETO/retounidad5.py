@@ -1,208 +1,238 @@
-import os, csv
-import matplotlib.pyplot as plt
+# Importamos los módulos necesarios
+import os                      # Para trabajar con archivos y carpetas del sistema
+import csv                     # Para leer archivos CSV
+import matplotlib.pyplot as plt  # Para crear gráficos como barras y dispersión
 
-# ---------- Utilidades ----------
-def limpiar_pantalla():
-    try:
-        os.system("cls" if os.name == "nt" else "clear")
-    except:
-        pass
-
-def pausar():
-    try:
-        input("\nPresione Enter para continuar...")
-    except:
-        pass
-
+# Función para mostrar archivos en una carpeta
 def mostrar_archivos():
-    print("\n1) Carpeta actual\n2) Ingresar otra carpeta")
-    opcion = input("Seleccione una opción: ").strip()
-    ruta = "." if opcion != "2" else input("Ingrese la ruta deseada: ").strip()
+    print("\n1) Carpeta actual")
+    print("2) Ingresar otra carpeta")
+    opcion_usuario = input("Seleccione una opción: ").strip()
+
+    if opcion_usuario != "2":
+        ruta_carpeta = "."
+    else:
+        ruta_carpeta = input("Ingrese la ruta deseada: ").strip()
+
     try:
-        print("\nElementos en la ruta:", os.path.abspath(ruta))
-        for nombre_archivo in os.listdir(ruta):
-            print(" •", nombre_archivo)
+        ruta_absoluta = os.path.abspath(ruta_carpeta)
+        print("\nElementos en la ruta:", ruta_absoluta)
+        lista_elementos = os.listdir(ruta_carpeta)
+        for elemento in lista_elementos:
+            print(" •", elemento)
     except Exception as error:
         print("No se pudo acceder a la carpeta:", error)
 
-# ---------- TXT ----------
-def leer_archivo_txt(ruta_txt):
+# Función para leer el contenido de un archivo de texto
+def leer_archivo_txt(ruta_archivo_txt):
     try:
-        with open(ruta_txt, "r", encoding="utf-8") as archivo_txt:
-            return archivo_txt.read()
+        archivo = open(ruta_archivo_txt, "r", encoding="utf-8")
+        contenido = archivo.read()
+        archivo.close()
+        return contenido
     except Exception as error:
         print("Error al intentar leer el archivo:", error)
         return None
 
-def escribir_archivo_txt(ruta_txt, contenido_txt):
+# Función para escribir contenido en un archivo de texto
+def escribir_archivo_txt(ruta_archivo_txt, contenido_txt):
     try:
-        with open(ruta_txt, "w", encoding="utf-8") as archivo_txt:
-            archivo_txt.write(contenido_txt)
-            return True
+        archivo = open(ruta_archivo_txt, "w", encoding="utf-8")
+        archivo.write(contenido_txt)
+        archivo.close()
+        return True
     except Exception as error:
         print("No fue posible guardar el archivo:", error)
         return False
 
-def contar_txt(ruta_txt):
-    contenido = leer_archivo_txt(ruta_txt)
+# Función para contar palabras y caracteres en un archivo de texto
+def contar_txt(ruta_archivo_txt):
+    contenido = leer_archivo_txt(ruta_archivo_txt)
     if contenido is None:
         return
-    palabras = contenido.split()
-    total_palabras = len(palabras)
-    caracteres_con_espacios = len(contenido)
-    caracteres_sin_espacios = sum(1 for caracter in contenido if not caracter.isspace())
-    print("\nTotal de palabras:", total_palabras)
-    print("Caracteres (incluyen espacios):", caracteres_con_espacios)
-    print("Caracteres (sin espacios):", caracteres_sin_espacios)
 
-def reemplazar_txt(ruta_txt):
-    contenido = leer_archivo_txt(ruta_txt)
+    lista_palabras = contenido.split()
+    cantidad_palabras = len(lista_palabras)
+    cantidad_caracteres_con_espacios = len(contenido)
+
+    cantidad_caracteres_sin_espacios = 0
+    for caracter in contenido:
+        if not caracter.isspace():
+            cantidad_caracteres_sin_espacios += 1
+
+    print("\nTotal de palabras:", cantidad_palabras)
+    print("Caracteres (incluyen espacios):", cantidad_caracteres_con_espacios)
+    print("Caracteres (sin espacios):", cantidad_caracteres_sin_espacios)
+
+# Función para reemplazar texto en un archivo
+def reemplazar_txt(ruta_archivo_txt):
+    contenido = leer_archivo_txt(ruta_archivo_txt)
     if contenido is None:
         return
-    palabra_original = input("Texto a buscar: ").strip()
-    palabra_nueva = input("Nuevo texto: ").strip()
-    if palabra_original == "":
+
+    texto_a_buscar = input("Texto a buscar: ").strip()
+    texto_nuevo = input("Nuevo texto: ").strip()
+
+    if texto_a_buscar == "":
         print("Debe ingresar una palabra válida.")
         return
-    if escribir_archivo_txt(ruta_txt, contenido.replace(palabra_original, palabra_nueva)):
+
+    contenido_modificado = contenido.replace(texto_a_buscar, texto_nuevo)
+    exito = escribir_archivo_txt(ruta_archivo_txt, contenido_modificado)
+
+    if exito:
         print("El contenido fue actualizado correctamente.")
 
-def graficar_vocales_txt(ruta_txt):
-    contenido = leer_archivo_txt(ruta_txt)
+# Función para contar vocales y graficarlas
+def graficar_vocales_txt(ruta_archivo_txt):
+    contenido = leer_archivo_txt(ruta_archivo_txt)
     if contenido is None:
         return
-    vocales = ["a", "e", "i", "o", "u"]
-    conteo_vocales = [0] * 5
-    for letra in contenido.lower():
-        if letra in vocales:
-            conteo_vocales[vocales.index(letra)] += 1
+
+    lista_vocales = ["a", "e", "i", "o", "u"]
+    conteo_vocales = [0, 0, 0, 0, 0]
+
+    contenido_minuscula = contenido.lower()
+    for letra in contenido_minuscula:
+        if letra in lista_vocales:
+            posicion = lista_vocales.index(letra)
+            conteo_vocales[posicion] += 1
+
     print("\nFrecuencia de vocales:")
     for i in range(5):
-        print(f" {vocales[i]} → {conteo_vocales[i]}")
-    plt.bar(vocales, conteo_vocales, color="skyblue")
+        print(lista_vocales[i], "→", conteo_vocales[i])
+
+    plt.bar(lista_vocales, conteo_vocales, color="skyblue")
     plt.title("Conteo de vocales")
     plt.xlabel("Vocal")
     plt.ylabel("Cantidad")
     plt.show()
 
-def submenu_txt():
-    ruta_txt = input("Ruta del archivo de texto: ").strip()
-    while True:
-        print("\nOpciones TXT: 1) Contar  2) Reemplazar  3) Gráfico de vocales  4) Volver")
-        opcion = input("Elija una opción: ").strip()
-        if opcion == "1":
-            contar_txt(ruta_txt)
-            pausar()
-        elif opcion == "2":
-            reemplazar_txt(ruta_txt)
-            pausar()
-        elif opcion == "3":
-            graficar_vocales_txt(ruta_txt)
-            pausar()
-        elif opcion == "4":
-            break
-        else:
-            print("Esa opción no es válida.")
-
-# ---------- CSV ----------
-def abrir_archivo_csv(ruta_csv):
-    for codificacion in ["utf-8", "latin-1", "cp1252"]:
+# Intenta abrir un archivo CSV con diferentes codificaciones
+def abrir_archivo_csv(ruta_archivo_csv):
+    codificaciones = ["utf-8", "latin-1", "cp1252"]
+    for codificacion in codificaciones:
         try:
-            archivo_csv = open(ruta_csv, "r", newline="", encoding=codificacion, errors="replace")
-            lector_csv = csv.reader(archivo_csv, delimiter=";")  # ← separador corregido
-            return archivo_csv, lector_csv
+            archivo = open(ruta_archivo_csv, "r", newline="", encoding=codificacion, errors="replace")
+            lector = csv.reader(archivo, delimiter=";")
+            return archivo, lector
         except Exception:
             continue
     print("No se pudo abrir el archivo con ninguna codificación compatible.")
     return None, None
 
-
-def mostrar_encabezado_csv(ruta_csv):
-    archivo_csv, lector_csv = abrir_archivo_csv(ruta_csv)
-    if lector_csv is None:
+# Muestra las primeras 15 filas del archivo CSV
+def mostrar_encabezado_csv(ruta_archivo_csv):
+    archivo, lector = abrir_archivo_csv(ruta_archivo_csv)
+    if lector is None:
         return
+
     contador = 0
     try:
-        for fila in lector_csv:
+        for fila in lector:
             print(fila)
             contador += 1
             if contador >= 15:
                 break
     finally:
         try:
-            archivo_csv.close()
+            archivo.close()
         except:
             pass
 
-def leer_todo_csv(ruta_csv):
-    archivo_csv, lector_csv = abrir_archivo_csv(ruta_csv)
-    if lector_csv is None:
+# Lee todas las filas del archivo CSV y las guarda en una lista
+def leer_todo_csv(ruta_archivo_csv):
+    archivo, lector = abrir_archivo_csv(ruta_archivo_csv)
+    if lector is None:
         return None
-    filas = []
+
+    lista_filas = []
     try:
-        for fila in lector_csv:
-            filas.append(fila)
+        for fila in lector:
+            lista_filas.append(fila)
     finally:
         try:
-            archivo_csv.close()
+            archivo.close()
         except:
             pass
-    return filas
+    return lista_filas
 
-def obtener_indice_columna(encabezados, entrada):
-    if entrada.isdigit():
-        indice = int(entrada)
-        return indice if 0 <= indice < len(encabezados) else -1
-    for i, nombre in enumerate(encabezados):
-        if nombre == entrada:
+# Busca el índice de una columna por nombre o número
+def obtener_indice_columna(encabezados, entrada_usuario):
+    if entrada_usuario.isdigit():
+        indice = int(entrada_usuario)
+        if indice >= 0 and indice < len(encabezados):
+            return indice
+        else:
+            return -1
+    for i in range(len(encabezados)):
+        if encabezados[i] == entrada_usuario:
             return i
     return -1
 
-def convertir_columna_a_float(filas, indice_columna):
-    valores = []
-    for fila in filas:
+# Convierte los valores de una columna a números flotantes
+def convertir_columna_a_float(lista_filas, indice_columna):
+    lista_valores = []
+    for fila in lista_filas:
         if indice_columna < len(fila):
             texto = fila[indice_columna].strip()
             if texto != "":
                 try:
-                    valores.append(float(texto.replace(",", ".")))
+                    numero = float(texto.replace(",", "."))
+                    lista_valores.append(numero)
                 except:
                     pass
-    return valores
+    return lista_valores
 
-def calcular_estadisticas(valores):
-    cantidad = len(valores)
+# Calcula estadísticas básicas de una lista de números
+def calcular_estadisticas(lista_valores):
+    cantidad = len(lista_valores)
     if cantidad == 0:
         return (0, None, None, None, None, None)
-    suma = sum(valores)
+
+    suma = 0
+    for valor in lista_valores:
+        suma += valor
     promedio = suma / cantidad
-    valores_ordenados = sorted(valores)
-    minimo = valores_ordenados[0]
-    maximo = valores_ordenados[-1]
+
+    lista_ordenada = sorted(lista_valores)
+    minimo = lista_ordenada[0]
+    maximo = lista_ordenada[-1]
+
     if cantidad % 2 == 1:
-        mediana = valores_ordenados[cantidad // 2]
+        mediana = lista_ordenada[cantidad // 2]
     else:
-        mediana = (valores_ordenados[cantidad // 2 - 1] + valores_ordenados[cantidad // 2]) / 2
-    suma_cuadrados = sum((x - promedio) ** 2 for x in valores)
+        mediana = (lista_ordenada[cantidad // 2 - 1] + lista_ordenada[cantidad // 2]) / 2
+
+    suma_cuadrados = 0
+    for valor in lista_valores:
+        diferencia = valor - promedio
+        suma_cuadrados += diferencia ** 2
     desviacion = (suma_cuadrados / cantidad) ** 0.5
+
     return (cantidad, promedio, mediana, desviacion, minimo, maximo)
 
-def mostrar_estadisticas_csv(ruta_csv):
-    filas = leer_todo_csv(ruta_csv)
-    if not filas:
+# Muestra estadísticas de una columna numérica del CSV
+def mostrar_estadisticas_csv(ruta_archivo_csv):
+    lista_filas = leer_todo_csv(ruta_archivo_csv)
+    if not lista_filas:
         print("CSV vacío o no válido.")
         return
-    encabezados = filas[0]
+
+    encabezados = lista_filas[0]
     print("\nEncabezados:")
-    for i, nombre in enumerate(encabezados):
-        print(f"  [{i}] {nombre}")
-    seleccion = input("Nombre o índice de columna: ").strip()
-    indice = obtener_indice_columna(encabezados, seleccion)
-    if indice == -1:
+    for i in range(len(encabezados)):
+        print("  [" + str(i) + "] " + encabezados[i])
+
+    entrada_usuario = input("Nombre o índice de columna: ").strip()
+    indice_columna = obtener_indice_columna(encabezados, entrada_usuario)
+    if indice_columna == -1:
         print("Columna no encontrada.")
         return
-    valores = convertir_columna_a_float(filas[1:], indice)
-    cantidad, promedio, mediana, desviacion, minimo, maximo = calcular_estadisticas(valores)
+
+    lista_valores = convertir_columna_a_float(lista_filas[1:], indice_columna)
+    cantidad, promedio, mediana, desviacion, minimo, maximo = calcular_estadisticas(lista_valores)
+
     print("\nCantidad:", cantidad)
     print("Promedio:", promedio)
     print("Mediana:", mediana)
@@ -210,104 +240,128 @@ def mostrar_estadisticas_csv(ruta_csv):
     print("Mínimo:", minimo)
     print("Máximo:", maximo)
 
-def graficar_columna_csv(ruta_csv):
-    filas = leer_todo_csv(ruta_csv)
-    if not filas:
+# Grafica los valores de una columna numérica del CSV
+def graficar_columna_csv(ruta_archivo_csv):
+    lista_filas = leer_todo_csv(ruta_archivo_csv)
+    if not lista_filas:
         print("CSV vacío o no válido.")
         return
-    encabezados = filas[0]
+
+    encabezados = lista_filas[0]
     print("\nEncabezados:")
-    for i, nombre in enumerate(encabezados):
-        print(f"  [{i}] {nombre}")
-    seleccion = input("Columna numérica (nombre o índice): ").strip()
-    indice = obtener_indice_columna(encabezados, seleccion)
+    for i in range(len(encabezados)):
+        print("  [" + str(i) + "] " + encabezados[i])
+
+    entrada_usuario = input("Columna numérica (nombre o índice): ").strip()
+    indice = obtener_indice_columna(encabezados, entrada_usuario)
     if indice == -1:
         print("Columna no encontrada.")
         return
 
-    valores = convertir_columna_a_float(filas[1:], indice)
+    valores = convertir_columna_a_float(lista_filas[1:], indice)
     if not valores:
         print("No hay datos numéricos válidos.")
         return
 
-    # Dispersión
+    # Gráfico de dispersión
+    xs = []
+    ys = []
+    for i in range(len(valores)):
+        xs.append(i)
+        ys.append(valores[i])
+
     plt.figure()
-    plt.scatter(range(len(valores)), valores)
-    plt.title(f"Dispersión - {encabezados[indice]}")
+    plt.scatter(xs, ys)
+    plt.title("Dispersión - " + encabezados[indice])
     plt.xlabel("Índice")
     plt.ylabel(encabezados[indice])
     plt.show()
 
-    # Barras por rangos
-    minimo, maximo = min(valores), max(valores)
+    # Gráfico de barras por rangos
+    minimo = min(valores)
+    maximo = max(valores)
     bins = 5
     ancho = (maximo - minimo) / bins if bins > 0 else 1
+
     etiquetas = []
-    frecuencias = [0] * bins
     for b in range(bins):
-        limite_inferior = minimo + b * ancho
-        limite_superior = minimo + (b + 1) * ancho if b < bins - 1 else maximo
-        etiquetas.append(f"{limite_inferior:.2f}-{limite_superior:.2f}")
+        li = minimo + b * ancho
+        if b < bins - 1:
+            ls = minimo + (b + 1) * ancho
+        else:
+            ls = maximo
+        etiqueta = str(round(li, 2)) + "-" + str(round(ls, 2))
+        etiquetas.append(etiqueta)
+
+    frecuencias = []
+    for _ in range(bins):
+        frecuencias.append(0)
 
     for valor in valores:
         for b in range(bins):
             partes = etiquetas[b].split("-")
             li = float(partes[0])
             ls = float(partes[1])
-            if li <= valor < ls or (b == bins - 1 and valor <= ls):
+            if (valor >= li and valor < ls) or (b == bins - 1 and valor <= ls):
                 frecuencias[b] += 1
                 break
 
     plt.figure()
     plt.bar(etiquetas, frecuencias, color="mediumseagreen")
-    plt.title(f"Barras por rangos - {encabezados[indice]}")
+    plt.title("Barras por rangos - " + encabezados[indice])
     plt.xlabel("Rango")
     plt.ylabel("Frecuencia")
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
 
+# Menú para trabajar con archivos CSV
 def submenu_csv():
-    ruta_csv = input("Ruta del archivo CSV: ").strip()
+    ruta_archivo_csv = input("Ruta del archivo CSV: ").strip()
+
     while True:
-        print("\nOpciones CSV: 1) Ver primeras filas  2) Estadísticas  3) Graficar columna  4) Volver")
-        opcion = input("Seleccione una opción: ").strip()
-        if opcion == "1":
-            mostrar_encabezado_csv(ruta_csv)
-            pausar()
-        elif opcion == "2":
-            mostrar_estadisticas_csv(ruta_csv)
-            pausar()
-        elif opcion == "3":
-            graficar_columna_csv(ruta_csv)
-            pausar()
-        elif opcion == "4":
+        print("\nOpciones CSV:")
+        print("1) Ver primeras filas")
+        print("2) Estadísticas")
+        print("3) Graficar columna")
+        print("4) Volver")
+
+        opcion_csv = input("Seleccione una opción: ").strip()
+
+        if opcion_csv == "1":
+            mostrar_encabezado_csv(ruta_archivo_csv)
+        elif opcion_csv == "2":
+            mostrar_estadisticas_csv(ruta_archivo_csv)
+        elif opcion_csv == "3":
+            graficar_columna_csv(ruta_archivo_csv)
+        elif opcion_csv == "4":
             break
         else:
             print("Opción no válida.")
-            pausar()
+
+# Menú principal del programa
 def main():
     while True:
-        limpiar_pantalla()
         print("\n--- Menú principal ---")
         print("1) Mostrar archivos")
         print("2) Procesar archivo TXT")
         print("3) Procesar archivo CSV")
         print("4) Salir")
-        opcion = input("Seleccione una opción: ").strip()
-        if opcion == "1":
+
+        opcion_principal = input("Seleccione una opción: ").strip()
+
+        if opcion_principal == "1":
             mostrar_archivos()
-            pausar()
-        elif opcion == "2":
+        elif opcion_principal == "2":
             submenu_txt()
-        elif opcion == "3":
+        elif opcion_principal == "3":
             submenu_csv()
-        elif opcion == "4":
+        elif opcion_principal == "4":
             print("Saliendo del programa...")
             break
         else:
             print("Opción no válida.")
-            pausar()
 
+# Activación del programa
 if __name__ == "__main__":
     main()
