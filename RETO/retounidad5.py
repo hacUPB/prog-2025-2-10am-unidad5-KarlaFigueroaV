@@ -20,7 +20,7 @@ def mostrar_archivos():
         lista_elementos = os.listdir(ruta_carpeta)
         for elemento in lista_elementos:
             print(" •", elemento)
-    except Exception as error:
+    except Exception as error:  # Se utilizo IA para no utilizar condicionales si no TRY 
         print("No se pudo acceder a la carpeta:", error)
 
 # Función para leer el contenido de un archivo de texto
@@ -30,7 +30,7 @@ def leer_archivo_txt(ruta_archivo_txt):
         contenido = archivo.read()
         archivo.close()
         return contenido
-    except Exception as error:
+    except Exception as error:  # Se utilizo IA para no utilizar condicionales si no TRY 
         print("Error al intentar leer el archivo:", error)
         return None
 
@@ -41,7 +41,7 @@ def escribir_archivo_txt(ruta_archivo_txt, contenido_txt):
         archivo.write(contenido_txt)
         archivo.close()
         return True
-    except Exception as error:
+    except Exception as error:              # Se utilizo IA para no utilizar condicionales si no TRY 
         print("No fue posible guardar el archivo:", error)
         return False
 
@@ -140,7 +140,7 @@ def abrir_archivo_csv(ruta_archivo_csv):
             lector = csv.reader(archivo, delimiter=";")
             return archivo, lector
         except Exception:
-            continue
+            continue      # Se utilizo IA para enteder la función del TRY
     print("No se pudo abrir el archivo con ninguna codificación compatible.")
     return None, None
 
