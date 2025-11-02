@@ -108,6 +108,29 @@ def graficar_vocales_txt(ruta_archivo_txt):
     plt.ylabel("Cantidad")
     plt.show()
 
+def submenu_txt():
+    ruta_archivo_txt = input("Ruta del archivo de texto: ").strip()
+
+    while True:
+        print("\nOpciones TXT:")
+        print("1) Contar")
+        print("2) Reemplazar")
+        print("3) Gráfico de vocales")
+        print("4) Volver")
+
+        opcion_txt = input("Elija una opción: ").strip()
+
+        if opcion_txt == "1":
+            contar_txt(ruta_archivo_txt)
+        elif opcion_txt == "2":
+            reemplazar_txt(ruta_archivo_txt)
+        elif opcion_txt == "3":
+            graficar_vocales_txt(ruta_archivo_txt)
+        elif opcion_txt == "4":
+            break
+        else:
+            print("Esa opción no es válida.")
+
 # Intenta abrir un archivo CSV con diferentes codificaciones
 def abrir_archivo_csv(ruta_archivo_csv):
     codificaciones = ["utf-8", "latin-1", "cp1252"]
